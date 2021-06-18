@@ -1,3 +1,5 @@
-Flask
 SQLAlchemy
+Flask
+Flask-SQLAlchemy
+Flask-Security
 python-dotenv
