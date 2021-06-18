@@ -5,4 +5,4 @@ app = Flask("World")
 
 @app.route("/")
 def hello_world():
-    return render_template("index.html", title="Hello")
+    return render_template("index.html.j2", title="Hello")
