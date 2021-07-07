@@ -3,3 +3,6 @@ Flask
 Flask-SQLAlchemy
 Flask-Security
 python-dotenv
+mariadb
+email_validator
+bcrypt

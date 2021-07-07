@@ -3,13 +3,13 @@
 {% block app %}
 <div class="container">
     <div class="row align-items-center justify-content-center">
-        <div class="col-3 align-self-center text-center">
-            <h1 class="display-1">Hello World!</h1>
+        <div class="col text-center">
+            <h1 class="display-5">Welcome to Squeezy</h1>
         </div>
+    </div>
+    <div class="row align-items-center justify-content-center text-right">
+        <p>Welcome, {{ user.email }}! <a href="{{ url_for('main.logout')}}">Logout!</a></p>
+
     </div>
 </div>
 {% endblock app %}
-
-{% block title %}
-Hello World!
-{% endblock title %}
