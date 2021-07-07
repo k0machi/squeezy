@@ -1,5 +1,4 @@
 from database import db
-from squeezy.models.roles_users import RolesUsers
 from flask_security import UserMixin
 
 class User(db.Model, UserMixin):

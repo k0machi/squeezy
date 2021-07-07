@@ -1,1 +1,56 @@
 @import 'bootstrap';
+
+html, body {
+    height: 100%;
+    margin: 0px;
+}
+
+.container-fluid {
+    height: 100%
+}
+
+#title {
+    padding: 24px;
+}
+
+.navbar-squeezy {
+    background-color: rgb(63, 63, 243);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    box-shadow: 10px 1px 24px rgba(0, 0, 0, .1);
+}
+
+#logout {
+    margin: 8px;
+    padding: 8px;
+}
+
+.sidebar {
+    background-color: rgb(63, 63, 243);
+    color: white;
+}
+
+.sidebar a, .navbar-squeezy a {
+    color: white;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.sidebar a:visited, .navbar-squeezy a:visited {
+    text-decoration: none;
+}
+
+.sidebar li:hover {
+    background-color: darkblue;
+}
+
+.sidebar ul {
+    width: 100%;
+}
+
+.inline-block {
+    display: inline-block;
+}

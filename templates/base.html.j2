@@ -6,8 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}
-    Squeezy
-    {% endblock title %}</title>
+    Squeezy{% endblock title %}</title>
     {% block styles %}
     <link rel="stylesheet" href="static/dist/main.css">
     {% endblock styles %}
@@ -18,14 +17,28 @@
 </head>
 <body>
     <div class="container-fluid">
-        <div class="row">
-            {# <aside class="col">
+        <div class="navbar-squeezy">
+            <p id="title" class="text-center">
+                <a class="navbar-brand" href="{{ url_for('main.root')}}">Squeezy</a>
+            </p>
+            <div id="logout" class="border rounded">
+                <div class="text-end">
+                    {% if user %}
+                    {{ user.email }} <a class="btn btn-sm btn-danger" href="{{ url_for('main.logout')}}">Logout</a>
+                    {% endif %}
+                </div>
+            </div>
+            <nav class="navbar sidebar">
                 {% block sidebar %}
-                
+                {% include "partials/sidebar.html.j2" %}
                 {% endblock sidebar %}
-            </aside> #}
+            </nav>
+        </div>
+        <div class="row">
+            <div class="col-12">
                 {% block app %}
                 {% endblock app %}
+            </div>
         </div>
     </div>
 </body>

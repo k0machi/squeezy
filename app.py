@@ -25,16 +25,16 @@ def init_app():
     return app
 
 
-def setup_db(app):
+def setup_db(app: Flask):
     with app.app_context():
         db.create_all()
     
 
-def init_blueprints(app):
+def init_blueprints(app: Flask):
     app.register_blueprint(main_module)
 
 
-def init_extensions(app):
+def init_extensions(app: Flask):
     db.init_app(app)
 
 
