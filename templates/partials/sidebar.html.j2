@@ -1,10 +1,11 @@
 {% block sidebar_links %}
 <ul class="nav flex-column">
-    <li class="nav-item"><a class="nav-link" href="{{url_for('main.root')}}">Status</a></li>
-    <li class="nav-item"><a class="nav-link" href="{{url_for('main.basic_settings')}}">Basics</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Access Control Lists</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">ACL Files</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Users</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Logs</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.root')}}" href="{{url_for('main.root')}}">Status</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.basic_settings')}}" href="{{url_for('main.basic_settings')}}">Settings</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.files')}}" href="{{url_for('main.files')}}">Files</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.root')}}" href="#">Access Control Lists</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.root')}}" href="#">Directives</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.root')}}" href="#">Users</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.root')}}" href="#">Logs</a></li>
 </ul>
 {% endblock sidebar_links %}

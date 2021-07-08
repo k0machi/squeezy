@@ -5,9 +5,11 @@
     <div class="row align-items-center justify-content-center">
         <h1>Basic Settings</h1>
     </div>
-    <div class="row" id="status-widget-block">
-
-    </div>
+    <form action="{{url_for('main.basic_settings')}}" method="post">
+        {{ form.csrf_token }}
+        {{ form.http_port.label }} {{ form.http_port }}
+        <input type="submit" value="Save">
+    </form>
 </div>
 {% endblock app %}
 

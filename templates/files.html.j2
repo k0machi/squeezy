@@ -1,0 +1,62 @@
+{% extends "base.html.j2" %}
+
+{% block app %}
+<div class="container">
+    <div class="row align-items-center justify-content-center">
+        <h1>Files</h1>
+    </div>
+    <div class="col-3 border rounded padding-1 m-2 align">
+        <form class="form-row p-2" action="{{url_for('main.files')}}" method="post" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                <div class="mb-3">
+                {{ form.label.label(class="form-label") }}
+                {{ form.label(class="form-control") }}
+                {% if form.label.errors %}
+                    <ul class="rounded danger list-unstyled">
+                    {% for error in form.label.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                </div>
+                <div class="mb-3">
+                {{ form.file.label(class="form-label") }}
+                {{ form.file(class="form-control") }}
+                {% if form.file.errors %}
+                    <ul class="rounded danger list-unstyled">
+                    {% for error in form.file.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}</div>
+                <div class="mb-3"><input class="btn btn-primary" type="submit" value="Upload"></div>
+        </form>
+    </div>
+    <div class="row p-2">
+        <table class="table border table-striped table-bordered">
+            <thead>
+                <th>Label</th>
+                <th>File Name</th>
+                <th>SHA-256 Hash</th>
+                <th></th>
+                <th></th>
+            </thead>
+            <tbody>
+            {% for file in files %}
+                <tr>
+                    <td>{{ file.label }}</td>
+                    <td>{{ file.original_filename }}</td>
+                    <td>{{ file.sha256 }}</td>
+                    <td><a href="{{url_for('main.file', id=file.id)}}" class="btn btn-sm btn-primary">View</a></td>
+                    <td><form action="{{url_for('main.file_delete', id=file.id)}}" method="post"><button type="submit" class="btn btn-sm btn-danger">Delete</button></form></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock app %}
+
+{% block title %}
+{{ super() }}: Basic Settings
+{% endblock title %}

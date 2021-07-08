@@ -4,3 +4,4 @@ __pycache__
 node_modules
 static/dist
 .env.local
+storage/files/file*

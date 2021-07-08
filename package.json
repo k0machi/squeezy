@@ -6,8 +6,9 @@
     "jquery": "^3.6.0",
     "mini-css-extract-plugin": "^1.6.0",
     "style-loader": "^2.0.0",
-    "vue": "^2.6.14",
-    "webpack": "^5.39.1"
+    "webpack": "^5.39.1",
+    "svelte": "^3.38.3",
+    "svelte-loader": "^3.1.2"
   },
   "devDependencies": {
     "webpack-cli": "^4.7.2"

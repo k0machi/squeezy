@@ -8,10 +8,10 @@
     <title>{% block title %}
     Squeezy{% endblock title %}</title>
     {% block styles %}
-    <link rel="stylesheet" href="static/dist/main.css">
+    <link rel="stylesheet" href="/static/dist/main.css">
     {% endblock styles %}
     {% block javascripts %}
-    <script src="static/dist/app.js"></script>
+    <script defer src="/static/dist/main.bundle.js"></script>
     {% endblock javascripts %}
 {% endblock head %}
 </head>
@@ -40,6 +40,15 @@
                 {% endblock app %}
             </div>
         </div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="list-unstyled flashes border rounded alert alert-secondary p-2">    
+                {% for message in messages %}
+                    <li class="alert alert-danger mb-1">{{ message }}</li>
+                {% endfor %}
+            </ul>        
+        {% endif %}
+        {% endwith %}
     </div>
 </body>
 </html>

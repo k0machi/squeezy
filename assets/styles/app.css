@@ -10,7 +10,18 @@ html, body {
 }
 
 #title {
-    padding: 24px;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 8px;
+    background-color: rgb(34, 34, 161);
+    font-weight: 900;
+}
+
+
+.flashes {
+    position: fixed;
+    top: 12px;
+    right: 48px;
 }
 
 .navbar-squeezy {
@@ -43,14 +54,10 @@ html, body {
     text-decoration: none;
 }
 
-.sidebar li:hover {
+.sidebar li:hover, .active-menu {
     background-color: darkblue;
 }
 
 .sidebar ul {
     width: 100%;
-}
-
-.inline-block {
-    display: inline-block;
 }
