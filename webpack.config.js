@@ -5,7 +5,8 @@ module.exports = {
     plugins: [new MiniCssExtractPlugin()],
     mode: 'development',
     entry: {
-        main: './assets/app.js'
+        main: './assets/app.js',
+        aclEditor: './assets/AclEditor/acl-editor.js'
     },
     output: {
         path: path.resolve(__dirname, 'static/dist'),

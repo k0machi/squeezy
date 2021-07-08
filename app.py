@@ -3,6 +3,7 @@ from flask import Flask, render_template
 from flask_security import Security, SQLAlchemyUserDatastore
 from database import db
 from squeezy.controllers.main import main_module
+from squeezy.controllers.api import api_module
 from squeezy.models.settings import Settings
 from squeezy.models.user import User
 from squeezy.models.role import Role
@@ -25,6 +26,7 @@ def setup_db(app: Flask):
 
 def init_blueprints(app: Flask):
     app.register_blueprint(main_module)
+    app.register_blueprint(api_module)
 
 
 def init_extensions(app: Flask):
