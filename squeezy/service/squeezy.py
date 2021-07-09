@@ -123,7 +123,13 @@ class SqueezyService:
         
         oldAcls = list(directive.acls)
 
-        existingAcls = [ACLDirective.query.filter_by(id=acldata["acldir_id"]).first() for acldata in directive_data["acls"] if acldata["acldir_id"] != -1]
+        existingAcls = [(ACLDirective.query.filter_by(id=acldata["acldir_id"]).first(), acldata) for acldata in directive_data["acls"] if acldata["acldir_id"] != -1]
+        for acldir, acldata in existingAcls:
+            acl = AccessControlList.query.filter_by(id=acldata["id"]).first()
+            acldir.negated = acldata["negated"]
+            acldir.acl = acl
+
+
         newAcls = [acldata for acldata in directive_data["acls"] if acldata["acldir_id"] == -1 and acldata["id"] != -1]
         for newAcl in newAcls:
             aclDirective = ACLDirective()
@@ -136,7 +142,7 @@ class SqueezyService:
             aclDirective.negated = newAcl["negated"]
             db.session.add(aclDirective)
 
-        removedAcls = [aclToRemove for aclToRemove in oldAcls if aclToRemove not in existingAcls]
+        removedAcls = [aclToRemove for aclToRemove in oldAcls if aclToRemove not in existingAcls[0]]
         for removedAcl in removedAcls:
             db.session.delete(removedAcl)
         
