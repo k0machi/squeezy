@@ -72,7 +72,7 @@
         </div>
         <div class="col">
                 <label for="acl_type_{acl.list_id}" class="form-label">Type</label>
-                <select name="" id="acl_type_{acl.list_id}" class="form-select" bind:value={acl.type}>
+                <select name="" id="acl_type_{acl.list_id}" class="form-select" bind:value={acl.type} on:change={handleHelpString}>
                     <option value="ACL_TYPE_NO_TYPE">Select ACL Type</option>
                     {#each types as type}
                         <option value="{type.internalName}">{type.configName}</option>
