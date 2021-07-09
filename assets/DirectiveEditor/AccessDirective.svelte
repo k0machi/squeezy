@@ -84,146 +84,150 @@
     $: console.log(directive);
 </script>
 
-<div class="row rounded border p-2 mb-2">
-    <div class="col">
-        <label for="dir_type_{directive.list_id}" class="form-label">Type</label
-        >
-        <!-- svelte-ignore a11y-no-onchange -->
-        <select
-            name=""
-            id="dir_type_{directive.list_id}"
-            class="form-select"
-            bind:value={directive.type}
-            on:change={handleSelectChange}
-        >
-            <option value="DIR_TYPE_NO_TYPE">Select Directive Type</option>
-            {#each types as type}
-                <option value={type.internalName}
-                    >{type.configName}</option
-                >
-            {/each}
-        </select>
+<div class="container-fluid rounded border mb-2">
+    <div class="row p-2">
+        <div class="col">
+            <label for="dir_type_{directive.list_id}" class="form-label">Type</label
+            >
+            <!-- svelte-ignore a11y-no-onchange -->
+            <select
+                name=""
+                id="dir_type_{directive.list_id}"
+                class="form-select"
+                bind:value={directive.type}
+                on:change={handleSelectChange}
+            >
+                <option value="DIR_TYPE_NO_TYPE">Select Directive Type</option>
+                {#each types as type}
+                    <option value={type.internalName}
+                        >{type.configName}</option
+                    >
+                {/each}
+            </select>    
+        </div>
+        <div class="col-1">
+            <label class="form-check-label" for="dir_radio_allow_{directive.list_id}">
+                Rule
+            </label>
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="radio"
+                    name=""
+                    id="dir_radio_allow_{directive.list_id}"
+                    bind:group={directive.deny}
+                    value={false}
+                />
+                <label class="form-check-label" for="dir_radio_allow_{directive.list_id}">
+                    ALLOW
+                </label>
+            </div>
+            <div class="form-check">
+                <input
+                    class="form-check-input"
+                    type="radio"
+                    name=""
+                    id="dir_radio_deny_{directive.list_id}"
+                    bind:group={directive.deny}
+                    value={true}
+                />
+                <label class="form-check-label" for="dir_radio_deny_{directive.list_id}">
+                    DENY
+                </label>
+            </div>
+        </div>
+        <div class="col border rounded p-1">
+            <button class="btn btn-sm btn-success" on:click={handleNewAcl}>+</button>
+            <label for="dir_acls{directive.list_id}" class="form-label"
+                >ACLs</label
+            >
+            <div class="container-fluid">
+                {#each directive.acls as acl (acl.list_id)}
+                    <div class="row mb-1">
+                        <div class="col-3 form-switch form-check ">
+                            <input type="checkbox" name="" id="dir_acl_check_{acl.list_id}" class="form-check-input" bind:checked={acl.negated}>
+                            <label for="dir_acl_check_{acl.list_id}" class="form-check-label">Negate</label>
+                        </div>
+                        <div class="col">
+                            <select name="" id="dir_acl_select_{acl.list_id}" class="form-select" bind:value={acl.id}>
+                                <option value="-1">Select ACL</option>
+                                {#each acls as possibleAcl (possibleAcl.id)}
+                                    <option value="{possibleAcl.id}">{possibleAcl.label}</option>
+                                {/each}
+                            </select>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+        <div class="col-1">
+            <label for="dir_priority{directive.list_id}" class="form-label"
+                >Priority</label
+            >
+            <input
+                type="number"
+                name=""
+                id="dir_priority{directive.list_id}"
+                bind:value={directive.priority}
+                class="form-control"
+            />
+        </div>
+        <div class="col-1 align-self-center text-center">
+            {#if directive.id == -1}
+                <div class="mb-1">
+                    <button
+                        name=""
+                        id="dir_save_{directive.list_id}"
+                        class="btn btn-primary"
+                        on:click={handleSave}
+                        disabled={busy}
+                    >
+                        Save
+                    </button>
+                </div>
+                <div>
+                    <button
+                        name=""
+                        id="dir_clear_{directive.list_id}"
+                        class="btn btn-danger"
+                        on:click={handleDelete}
+                        disabled={busy}
+                    >
+                        Delete
+                    </button>
+                </div>
+            {:else}
+                <div class="mb-1">
+                    <button
+                        name=""
+                        id="dir_update_{directive.list_id}"
+                        class="btn btn-success"
+                        on:click={handleSave}
+                        disabled={busy}
+                    >
+                        Update
+                    </button>
+                </div>
+                <div>
+                    <button
+                        name=""
+                        id="dir_delete_{directive.list_id}"
+                        class="btn btn-danger"
+                        on:click={handleDelete}
+                        disabled={busy}
+                    >
+                        Delete
+                    </button>
+                </div>
+            {/if}
+        </div>
+    </div>
+    
+    <div class="row">
         {#if currentTypeHint.length > 0}
         <div class="alert alert-light" role="alert">
             {currentTypeHint}
-        </div>    
-        {/if}
-        
-    </div>
-    <div class="col-1">
-        <label class="form-check-label" for="dir_radio_allow_{directive.list_id}">
-            Rule
-        </label>
-        <div class="form-check">
-            <input
-                class="form-check-input"
-                type="radio"
-                name=""
-                id="dir_radio_allow_{directive.list_id}"
-                bind:group={directive.deny}
-                value={false}
-            />
-            <label class="form-check-label" for="dir_radio_allow_{directive.list_id}">
-                ALLOW
-            </label>
         </div>
-        <div class="form-check">
-            <input
-                class="form-check-input"
-                type="radio"
-                name=""
-                id="dir_radio_deny_{directive.list_id}"
-                bind:group={directive.deny}
-                value={true}
-            />
-            <label class="form-check-label" for="dir_radio_deny_{directive.list_id}">
-                DENY
-            </label>
-        </div>
-    </div>
-    <div class="col">
-        <label for="dir_acls{directive.list_id}" class="form-label"
-            >ACLs</label
-        >
-        <button class="btn btn-sm btn-success" on:click={handleNewAcl}>+</button>
-        <div class="container-fluid">
-            {#each directive.acls as acl (acl.list_id)}
-                <div class="row mb-1">
-                    <div class="col-3 form-switch form-check ">
-                        <input type="checkbox" name="" id="dir_acl_check_{acl.list_id}" class="form-check-input" bind:checked={acl.negated}>
-                        <label for="dir_acl_check_{acl.list_id}" class="form-check-label">Negate</label>
-                    </div>
-                    <div class="col">
-                        <select name="" id="dir_acl_select_{acl.list_id}" class="form-select" bind:value={acl.id}>
-                            <option value="-1">Select ACL</option>
-                            {#each acls as possibleAcl (possibleAcl.id)}
-                                <option value="{possibleAcl.id}">{possibleAcl.label}</option>
-                            {/each}
-                        </select>
-                    </div>
-                </div>
-            {/each}
-        </div>
-    </div>
-    <div class="col-1">
-        <label for="dir_priority{directive.list_id}" class="form-label"
-            >Priority</label
-        >
-        <input
-            type="number"
-            name=""
-            id="dir_priority{directive.list_id}"
-            bind:value={directive.priority}
-            class="form-control"
-        />
-    </div>
-    <div class="col-1 align-self-center text-center">
-        {#if directive.id == -1}
-            <div class="mb-1">
-                <button
-                    name=""
-                    id="dir_save_{directive.list_id}"
-                    class="btn btn-primary"
-                    on:click={handleSave}
-                    disabled={busy}
-                >
-                    Save
-                </button>
-            </div>
-            <div>
-                <button
-                    name=""
-                    id="dir_clear_{directive.list_id}"
-                    class="btn btn-danger"
-                    on:click={handleDelete}
-                    disabled={busy}
-                >
-                    Delete
-                </button>
-            </div>
-        {:else}
-            <div class="mb-1">
-                <button
-                    name=""
-                    id="dir_update_{directive.list_id}"
-                    class="btn btn-success"
-                    on:click={handleSave}
-                    disabled={busy}
-                >
-                    Update
-                </button>
-            </div>
-            <div>
-                <button
-                    name=""
-                    id="dir_delete_{directive.list_id}"
-                    class="btn btn-danger"
-                    on:click={handleDelete}
-                    disabled={busy}
-                >
-                    Delete
-                </button>
-            </div>
         {/if}
     </div>
 </div>
