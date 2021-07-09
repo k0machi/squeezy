@@ -6,7 +6,8 @@ module.exports = {
     mode: 'development',
     entry: {
         main: './assets/app.js',
-        aclEditor: './assets/AclEditor/acl-editor.js'
+        aclEditor: './assets/AclEditor/acl-editor.js',
+        directiveEditor: './assets/DirectiveEditor/directive-editor.js'
     },
     output: {
         path: path.resolve(__dirname, 'static/dist'),

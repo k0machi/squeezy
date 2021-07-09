@@ -1,4 +1,4 @@
-from squeezy.models.acl import AccessControlList
+from squeezy.models.acl import AccessControlList, AccessDirective, ACLDirective
 from squeezy.forms.file import FileForm
 from squeezy.models.file import File
 from werkzeug.utils import secure_filename
@@ -90,3 +90,60 @@ class SqueezyService:
         db.session.commit()
 
         return id
+
+    def delete_directive(self, directive_data: dict):
+        id = directive_data["id"]
+        if id != -1:
+            directive: AccessDirective = AccessDirective.query.filter_by(id=id).first()
+        else:
+            raise Exception("No id provided")
+        
+        for acldir in directive.acls:
+            db.session.delete(acldir)
+
+        if not directive:
+            raise Exception("Directive does not exist")
+
+        db.session.delete(directive)
+        db.session.commit()
+
+        return id
+
+
+    def update_directive(self, directive_data: dict):
+        id = directive_data["id"]
+        if id != -1:
+            directive = AccessDirective.query.filter_by(id=id).first()
+        else:
+            directive = AccessDirective()
+
+        if not directive:
+            raise Exception("Wrong Directive id")
+        
+        oldAcls = list(directive.acls)
+
+        existingAcls = [ACLDirective.query.filter_by(id=acldata["acldir_id"]).first() for acldata in directive_data["acls"] if acldata["acldir_id"] != -1]
+        newAcls = [acldata for acldata in directive_data["acls"] if acldata["acldir_id"] == -1 and acldata["id"] != -1]
+        for newAcl in newAcls:
+            aclDirective = ACLDirective()
+            acl = AccessControlList.query.filter_by(id=newAcl["id"]).first()
+            if not acl:
+                raise Exception("Non-existing ACL provided", newAcl)
+            
+            aclDirective.acl = acl
+            aclDirective.directive = directive
+            aclDirective.negated = newAcl["negated"]
+            db.session.add(aclDirective)
+
+        removedAcls = [aclToRemove for aclToRemove in oldAcls if aclToRemove not in existingAcls]
+        for removedAcl in removedAcls:
+            db.session.delete(removedAcl)
+        
+        directive.type = directive_data["type"]
+        directive.priority = directive_data["priority"]
+        directive.deny = directive_data["deny"]
+
+        db.session.add(directive)
+        db.session.commit()
+
+        return directive

@@ -9,6 +9,7 @@ from squeezy.service.basic_settings import BasicSettingsService
 from squeezy.service.squeezy import SqueezyService, SqueezyServiceFileFormatError
 from squeezy.models.file import File
 from squeezy.helpers.acl_types import ACL_TYPES
+from squeezy.helpers.directive_types import DIRECTIVE_TYPES
 main_module = Blueprint('main', __name__)
 
 
@@ -75,3 +76,14 @@ def file_delete():
 @login_required
 def acls():
     return render_template("acls.html.j2", user=current_user, types=dumps(ACL_TYPES).replace("\"", "\\\""))
+
+
+@main_module.route("/directives", methods=["GET"])
+@login_required
+def access_directives():
+    return render_template("directives.html.j2", user=current_user, types=dumps(DIRECTIVE_TYPES).replace("\"", "\\\""))
+
+@main_module.route("/apply", methods=["GET"])
+@login_required
+def apply_config():
+    return render_template("config_apply.html.j2", user=current_user, types=dumps(DIRECTIVE_TYPES).replace("\"", "\\\""))
