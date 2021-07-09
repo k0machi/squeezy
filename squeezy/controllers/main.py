@@ -86,4 +86,5 @@ def access_directives():
 @main_module.route("/apply", methods=["GET"])
 @login_required
 def apply_config():
-    return render_template("config_apply.html.j2", user=current_user, types=dumps(DIRECTIVE_TYPES).replace("\"", "\\\""))
+    content = SqueezyService().apply_config()
+    return render_template("apply.html.j2", user=current_user, content=content)

@@ -17,6 +17,14 @@ html, body {
     font-weight: 900;
 }
 
+.file-view {
+    background-color: rgb(37, 37, 37);
+    color: white;
+    padding: 24px;
+    font-family: monospace;
+    font-size: 11pt;
+    border-radius: 16px;
+}
 
 .flashes {
     position: fixed;

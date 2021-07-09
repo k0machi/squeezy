@@ -6,6 +6,7 @@ from hashlib import sha256
 from datetime import datetime
 from config import ENVIRONMENT
 from squeezy.helpers.acl_types import ACL_TYPES
+from squeezy.helpers.directive_types import DIRECTIVE_TYPES
 from database import db
 from pathlib import Path
 import os
@@ -147,3 +148,42 @@ class SqueezyService:
         db.session.commit()
 
         return directive
+
+
+    def apply_config(self):
+        negation_c = "!"
+        empty_c = ""
+        template_path = Path(ENVIRONMENT.get("INSTANCE_PATH") + ENVIRONMENT.get("SQUID_TEMPLATE_DIR") + "/squid.conf.default")
+        with open(template_path, "rt") as f:
+            template = f.read()
+        
+        acls: list[AccessControlList] = AccessControlList.query.order_by(AccessControlList.priority).all()
+        directives: list[AccessDirective] = AccessDirective.query.order_by(AccessDirective.priority).all()
+
+        config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") + ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
+        with open(config_path, "w+t") as f:
+            f.writelines(
+                [
+                    "acl %s %s %s\n" % 
+                        (
+                            acl.label.replace(" ", "_"), 
+                            [acl_type["configName"] for acl_type in ACL_TYPES if acl_type["internalName"] == acl.type][0],
+                            "-i \"" + File.query.filter_by(id=acl.file_id).first().filepath + "\"" if acl.is_file else acl.parameters 
+                        ) 
+                    for acl in acls
+                ])
+            f.writelines([
+                "%s %s %s\n" %
+                    (
+                        [directive_type["configName"] for directive_type in DIRECTIVE_TYPES if directive_type["internalName"] == directive.type][0],
+                        "deny" if directive.deny else "allow",
+                        " ".join([f"{negation_c if acl.negated else empty_c}{acl.acl.label}" for acl in directive.acls])
+                    )
+                for directive in directives
+                ])
+            f.write(template)
+            f.seek(0)
+            config_content = f.read()
+        
+        return config_content
+

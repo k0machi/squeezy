@@ -24,7 +24,7 @@ def acl_get_all():
                 "params": acl.parameters,
                 "priority": acl.priority
             }
-            for acl in AccessControlList.query.all()
+            for acl in AccessControlList.query.order_by(AccessControlList.priority).all()
         ]
         response["response"] = acls
     except Exception as e:
@@ -56,7 +56,7 @@ def directive_get_all():
                     for acldir in directive.acls
                 ]
             }
-            for directive in AccessDirective.query.all()
+            for directive in AccessDirective.query.order_by(AccessDirective.priority).all()
         ]
         response["response"] = directives
     except Exception as e:
