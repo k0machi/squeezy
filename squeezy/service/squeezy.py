@@ -27,11 +27,14 @@ class SqueezyService:
             bytes(filename + str(datetime.now()), encoding="utf-8")).hexdigest()
         file_db.label = form.label.data
         file_db.original_filename = filename
+
+        file_db.filepath = f"file_{on_disk_name}"
+
         storage_path = ENVIRONMENT.get("SQUEEZY_FILE_STORAGE_PATH")
         filepath = os.path.join(ENVIRONMENT.get(
-            "INSTANCE_PATH"), storage_path, f"file_{on_disk_name}")
+            "INSTANCE_PATH"), storage_path, file_db.filepath)
         normalized_path = Path(filepath)
-        file_db.filepath = str(normalized_path.absolute())
+
         with open(normalized_path.absolute(), "w+b") as f:
             data.save(f)
             f.seek(0)
@@ -40,7 +43,11 @@ class SqueezyService:
         db.session.commit()
 
     def handle_file_read(self, file: File):
-        with open(file.filepath, "rt", encoding="utf-8") as f:
+        storage_path = ENVIRONMENT.get("SQUEEZY_FILE_STORAGE_PATH")
+        path = os.path.join(ENVIRONMENT.get(
+            "INSTANCE_PATH"), storage_path, file.filepath)
+
+        with open(Path(path).absolute(), "rt", encoding="utf-8") as f:
             return f.read()
 
     def handle_file_delete(self, file: File):
@@ -57,7 +64,7 @@ class SqueezyService:
 
         if not acl:
             raise Exception("Wrong ACL id")
-        
+
         if acl_data["isFile"]:
             acl.is_file = True
             acl.file_id = acl_data["fileId"]
@@ -66,7 +73,7 @@ class SqueezyService:
             acl.is_file = False
             acl.parameters = acl_data["params"]
             acl.file_id = None
-        
+
         acl.label = acl_data["label"]
         acl.priority = acl_data["priority"]
         acl.type = acl_data["type"]
@@ -76,14 +83,13 @@ class SqueezyService:
 
         return acl.id
 
-
     def delete_acl(self, acl_data: dict):
         id = acl_data["id"]
         if id != -1:
             acl = AccessControlList.query.filter_by(id=id).first()
         else:
             raise Exception("No id provided")
-        
+
         if not acl:
             raise Exception("ACL does not exist")
 
@@ -95,10 +101,11 @@ class SqueezyService:
     def delete_directive(self, directive_data: dict):
         id = directive_data["id"]
         if id != -1:
-            directive: AccessDirective = AccessDirective.query.filter_by(id=id).first()
+            directive: AccessDirective = AccessDirective.query.filter_by(
+                id=id).first()
         else:
             raise Exception("No id provided")
-        
+
         for acldir in directive.acls:
             db.session.delete(acldir)
 
@@ -110,7 +117,6 @@ class SqueezyService:
 
         return id
 
-
     def update_directive(self, directive_data: dict):
         id = directive_data["id"]
         if id != -1:
@@ -120,32 +126,34 @@ class SqueezyService:
 
         if not directive:
             raise Exception("Wrong Directive id")
-        
+
         oldAcls = list(directive.acls)
 
-        existingAcls = [(ACLDirective.query.filter_by(id=acldata["acldir_id"]).first(), acldata) for acldata in directive_data["acls"] if acldata["acldir_id"] != -1]
+        existingAcls = [(ACLDirective.query.filter_by(id=acldata["acldir_id"]).first(
+        ), acldata) for acldata in directive_data["acls"] if acldata["acldir_id"] != -1]
         for acldir, acldata in existingAcls:
             acl = AccessControlList.query.filter_by(id=acldata["id"]).first()
             acldir.negated = acldata["negated"]
             acldir.acl = acl
 
-
-        newAcls = [acldata for acldata in directive_data["acls"] if acldata["acldir_id"] == -1 and acldata["id"] != -1]
+        newAcls = [acldata for acldata in directive_data["acls"]
+                   if acldata["acldir_id"] == -1 and acldata["id"] != -1]
         for newAcl in newAcls:
             aclDirective = ACLDirective()
             acl = AccessControlList.query.filter_by(id=newAcl["id"]).first()
             if not acl:
                 raise Exception("Non-existing ACL provided", newAcl)
-            
+
             aclDirective.acl = acl
             aclDirective.directive = directive
             aclDirective.negated = newAcl["negated"]
             db.session.add(aclDirective)
 
-        removedAcls = [aclToRemove for aclToRemove in oldAcls if aclToRemove not in existingAcls[0]]
+        removedAcls = [
+            aclToRemove for aclToRemove in oldAcls if aclToRemove not in existingAcls[0]]
         for removedAcl in removedAcls:
             db.session.delete(removedAcl)
-        
+
         directive.type = directive_data["type"]
         directive.priority = directive_data["priority"]
         directive.deny = directive_data["deny"]
@@ -155,41 +163,58 @@ class SqueezyService:
 
         return directive
 
+    def safe_acl_name(self, acl: AccessControlList):
+        return acl.label.replace(" ", "_")
+
+    def parse_acl(self, acl: AccessControlList):
+        label = self.safe_acl_name(acl)
+        acl_type, * \
+            _ = filter(lambda val: val["internalName"] == acl.type, ACL_TYPES)
+        acl_type = acl_type.get("configName", "CONSISTENCY_ERROR")
+        storage_path = Path(ENVIRONMENT.get("INSTANCE_PATH") +
+                            ENVIRONMENT.get("SQUEEZY_FILE_STORAGE_PATH"))
+        if acl.is_file:
+            filepath = str(storage_path.absolute()) + "/" + \
+                File.query.filter_by(id=acl.file_id).first().filepath
+            return f"acl {label} {acl_type} -i \"{filepath}\"\n"
+        else:
+            return f"acl {label} {acl_type} {acl.parameters}\n"
+
+    def parse_directive(self, directive: AccessDirective):
+        def acl_negation(val): return "!" if val.negated else ""
+
+        directive_type, * \
+            _ = filter(lambda val: val["internalName"]
+                       == directive.type, DIRECTIVE_TYPES)
+        directive_type = directive_type.get("configName", "CONSISTENCY_ERROR")
+        direction = "deny" if directive.deny else "allow"
+        acls = " ".join(
+            [f"{acl_negation(acl)}{self.safe_acl_name(acl.acl)}" for acl in directive.acls])
+
+        return f"{directive_type} {direction} {acls}\n"
 
     def apply_config(self):
-        negation_c = "!"
-        empty_c = ""
-        template_path = Path(ENVIRONMENT.get("INSTANCE_PATH") + ENVIRONMENT.get("SQUID_TEMPLATE_DIR") + "/squid.conf.default")
+        template_path = Path(ENVIRONMENT.get(
+            "INSTANCE_PATH") + ENVIRONMENT.get("SQUID_TEMPLATE_DIR") + "/squid.conf.default")
         with open(template_path, "rt") as f:
             template = f.read()
-        
-        acls: list[AccessControlList] = AccessControlList.query.order_by(AccessControlList.priority).all()
-        directives: list[AccessDirective] = AccessDirective.query.order_by(AccessDirective.priority).all()
 
-        config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") + ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
+        acls: list[AccessControlList] = AccessControlList.query.order_by(
+            AccessControlList.priority).all()
+        directives: list[AccessDirective] = AccessDirective.query.order_by(
+            AccessDirective.priority).all()
+
+        config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") +
+                           ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
         with open(config_path, "w+t") as f:
-            f.writelines(
-                [
-                    "acl %s %s %s\n" % 
-                        (
-                            acl.label.replace(" ", "_"), 
-                            [acl_type["configName"] for acl_type in ACL_TYPES if acl_type["internalName"] == acl.type][0],
-                            "-i \"" + File.query.filter_by(id=acl.file_id).first().filepath + "\"" if acl.is_file else acl.parameters 
-                        ) 
-                    for acl in acls
-                ])
-            f.writelines([
-                "%s %s %s\n" %
-                    (
-                        [directive_type["configName"] for directive_type in DIRECTIVE_TYPES if directive_type["internalName"] == directive.type][0],
-                        "deny" if directive.deny else "allow",
-                        " ".join([f"{negation_c if acl.negated else empty_c}{acl.acl.label}" for acl in directive.acls])
-                    )
-                for directive in directives
-                ])
+            f.writelines([self.parse_acl(acl) for acl in acls])
+            f.writelines([self.parse_directive(directive)
+                         for directive in directives])
             f.write(template)
-            f.seek(0)
-            config_content = f.read()
-        
-        return config_content
 
+    def get_config(self):
+        config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") +
+                           ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
+        with open(config_path, "rt") as f:
+            content = f.read()
+        return content

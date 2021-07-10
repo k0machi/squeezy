@@ -53,16 +53,18 @@
         directives = directives.filter(val => val.list_id != ev.detail.list_id);
     };
 
-    $: console.log(directives);
 </script>
 
 <div class="container-fluid p-3">
+    
+    <div class="row text-center">
+        <h1>Access Directives</h1>
+    </div>
     {#await allPromise}
         Loading...
     {:then}
         <div class="row mb-3">
-            <div class="col-1 form-group">
-                <label for="button_add_new_directive" class="form-label"></label>
+            <div class="form-group text-center">
                 <button id="button_add_new_directive" class="form-control btn btn-success" on:click={handleNew}>Create</button>
             </div>
         </div>

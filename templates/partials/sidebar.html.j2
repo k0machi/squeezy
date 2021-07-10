@@ -5,8 +5,11 @@
     <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.files')}}" href="{{url_for('main.files')}}">Files</a></li>
     <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.acls')}}" href="{{url_for('main.acls')}}">Access Control Lists</a></li>
     <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.access_directives')}}" href="{{url_for('main.access_directives')}}">Directives</a></li>
+    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.get_config')}}" href="{{url_for('main.get_config')}}">Config</a></li>
     <li class="nav-item"><a class="nav-link " href="#">Users</a></li>
     <li class="nav-item"><a class="nav-link " href="#">Logs</a></li>
-    <li class="nav-item"><a class="nav-link {{'active-menu' if request.path == url_for('main.apply_config')}}" href="{{url_for('main.apply_config')}}">Apply Configuration</a></li>
+    <li class="nav-item p-1 text-center">
+    <form action="{{url_for('main.apply_config')}}" method="post"><input class="btn btn-sm btn-success {{'active-menu' if request.path == url_for('main.apply_config')}}" type="submit" value="Apply Configuration"></form>
+    </li>
 </ul>
 {% endblock sidebar_links %}

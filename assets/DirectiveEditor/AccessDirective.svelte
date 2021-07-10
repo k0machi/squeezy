@@ -38,7 +38,6 @@
 
     let handleSelectChange = async function() {
         currentTypeHint = types.find((val) => val.internalName == directive.type).friendlyName;
-        console.log(currentTypeHint);
     };
 
     let handleNewAcl = async function() {
@@ -61,7 +60,6 @@
 
         if (result.status == "ok") {
             directive = result.response[0]
-            console.log(result);
         }
         busy = false;
     };
@@ -81,7 +79,6 @@
         busy = false;
     };
 
-    $: console.log(directive);
 </script>
 
 <div class="container-fluid rounded border mb-2">

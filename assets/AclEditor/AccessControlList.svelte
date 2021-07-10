@@ -43,7 +43,6 @@
 
         if (result.status == "ok") {
             acl.id = result.response[0].id;
-            console.log(result);
         }
 
         busy = false;
@@ -72,6 +71,7 @@
         </div>
         <div class="col">
                 <label for="acl_type_{acl.list_id}" class="form-label">Type</label>
+                <!-- svelte-ignore a11y-no-onchange -->
                 <select name="" id="acl_type_{acl.list_id}" class="form-select" bind:value={acl.type} on:change={handleHelpString}>
                     <option value="ACL_TYPE_NO_TYPE">Select ACL Type</option>
                     {#each types as type}

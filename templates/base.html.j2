@@ -24,7 +24,9 @@
             <div id="logout" class="border rounded">
                 <div class="text-end">
                     {% if user %}
-                    {{ user.email }} <a class="btn btn-sm btn-danger" href="{{ url_for('main.logout')}}">Logout</a>
+                    <form action="{{ url_for('main.logout')}}" method="post">
+                    {{ user.email }} <input class="btn btn-sm btn-danger" type="submit" value="LOGOUT">
+                    </form>
                     {% endif %}
                 </div>
             </div>

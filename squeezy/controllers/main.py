@@ -19,7 +19,7 @@ def root():
     return render_template("index.html.j2", user=current_user)
 
 
-@main_module.route("/logout")
+@main_module.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
@@ -58,17 +58,25 @@ def files():
 @main_module.route("/files/<id>", methods=["GET", "POST"])
 @login_required
 def file(id: int):
-    file = File.query.filter_by(id=id).first()
-    content = SqueezyService().handle_file_read(file)
+    try:
+        file = File.query.filter_by(id=id).first()
+        content = SqueezyService().handle_file_read(file)
+    except Exception as e:
+        flash(e.args[0])
+        return redirect(url_for("main.root"))
     return render_template("file.html.j2", user=current_user, file=file, content=content)
 
 
 @main_module.route("/files/delete", methods=["POST"])
 @login_required
 def file_delete():
-    id = request.args.get("id")
-    file = File.query.filter_by(id=id).first()
-    SqueezyService().handle_file_delete(file)
+    try:
+        id = request.args.get("id")
+        file = File.query.filter_by(id=id).first()
+        SqueezyService().handle_file_delete(file)
+    except Exception as e:
+        flash(e.args[0])
+        return redirect(url_for("main.root"))
     return redirect(url_for('main.files'))
 
 
@@ -83,8 +91,22 @@ def acls():
 def access_directives():
     return render_template("directives.html.j2", user=current_user, types=dumps(DIRECTIVE_TYPES).replace("\"", "\\\""))
 
-@main_module.route("/apply", methods=["GET"])
+@main_module.route("/apply", methods=["POST"])
 @login_required
 def apply_config():
-    content = SqueezyService().apply_config()
-    return render_template("apply.html.j2", user=current_user, content=content)
+    try:
+        SqueezyService().apply_config()
+    except Exception as e:
+        flash(e.args[0])
+        return redirect(url_for("main.root"))
+    return redirect(url_for("main.get_config"))
+
+@main_module.route("/config", methods=["GET"])
+@login_required
+def get_config():
+    try:
+        content = SqueezyService().get_config()
+    except Exception as e:
+        flash(e.args[0])
+        return redirect(url_for("main.root"))
+    return render_template("config.html.j2", user=current_user, content=content)
