@@ -46,7 +46,7 @@
         {% if messages %}
             <ul class="list-unstyled flashes border rounded alert alert-secondary p-2">    
                 {% for message in messages %}
-                    <li class="alert alert-danger mb-1">{{ message }}</li>
+                    <li class="alert alert-danger mb-1"><pre>{{ message }}</pre></li>
                 {% endfor %}
             </ul>        
         {% endif %}

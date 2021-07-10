@@ -13,6 +13,13 @@
             </pre>
         </div>
     </div>
+    <div class="row">
+        <div class="col-1">
+            <form action="{{url_for('main.reconfigure_squid')}}" method="post">
+            <input type="submit" class="btn btn-danger" value="Reload Service">
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock app %}
 

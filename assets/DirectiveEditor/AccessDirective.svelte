@@ -59,7 +59,9 @@
         }).then((res) => res.json());
 
         if (result.status == "ok") {
-            directive = result.response[0]
+            let oldListid = directive.list_id;
+            directive = result.response[0];
+            directive.list_id = oldListid;
         }
         busy = false;
     };

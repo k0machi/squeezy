@@ -9,6 +9,7 @@ from squeezy.helpers.acl_types import ACL_TYPES
 from squeezy.helpers.directive_types import DIRECTIVE_TYPES
 from database import db
 from pathlib import Path
+from subprocess import CompletedProcess, run
 import os
 
 
@@ -20,6 +21,9 @@ class SqueezyServiceFileInUseError(Exception):
 
 
 class SqueezyServiceACLInUseError(Exception):
+    pass
+
+class SqueezySquidReconfigureError(Exception):
     pass
 
 class SqueezyService:
@@ -141,6 +145,9 @@ class SqueezyService:
         if not directive:
             raise Exception("Wrong Directive id")
 
+        directive.type = directive_data["type"]
+        directive.priority = directive_data["priority"]
+        directive.deny = directive_data["deny"]
         oldAcls = list(directive.acls)
 
         existingAcls = [(ACLDirective.query.filter_by(id=acldata["acldir_id"]).first(
@@ -168,9 +175,6 @@ class SqueezyService:
         for removedAcl in removedAcls:
             db.session.delete(removedAcl)
 
-        directive.type = directive_data["type"]
-        directive.priority = directive_data["priority"]
-        directive.deny = directive_data["deny"]
 
         db.session.add(directive)
         db.session.commit()
@@ -213,6 +217,12 @@ class SqueezyService:
         with open(template_path, "rt") as f:
             template = f.read()
 
+        squid_config_keys = [(key, value) for key, value in ENVIRONMENT.items() if key.startswith("SQUEEZY_SQUID_CONFIG")]
+
+        for key, value in squid_config_keys:
+            template = template.replace(f"${key}", value, 1)
+
+
         acls: list[AccessControlList] = AccessControlList.query.order_by(
             AccessControlList.priority).all()
         directives: list[AccessDirective] = AccessDirective.query.order_by(
@@ -232,3 +242,16 @@ class SqueezyService:
         with open(config_path, "rt") as f:
             content = f.read()
         return content
+
+
+    def reload_service(self):
+        config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") +
+                           ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
+        executable_path = ENVIRONMENT.get("SQUEEZY_SQUID_BINARY")
+        proc: CompletedProcess = run(args=[executable_path, "-f", config_path.absolute(), "-k", "reconfigure"], capture_output=True)
+        if proc.returncode == 0:
+            return True
+        else:
+            utf8_stdout = str(proc.stdout, encoding="utf-8")
+            utf8_stderr = str(proc.stderr, encoding="utf-8")
+            raise SqueezySquidReconfigureError(f"Squid failed to restart! Code: {proc.returncode}\nSTDOUT:\n{utf8_stdout}\nSTDERR:{utf8_stderr}")

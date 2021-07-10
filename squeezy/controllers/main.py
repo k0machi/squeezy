@@ -6,7 +6,7 @@ from squeezy.forms.file import FileForm
 from squeezy.models.settings import Settings
 from squeezy.models.acl import AccessControlList
 from squeezy.service.basic_settings import BasicSettingsService
-from squeezy.service.squeezy import SqueezyService, SqueezyServiceFileFormatError, SqueezyServiceFileInUseError
+from squeezy.service.squeezy import SqueezyService, SqueezyServiceFileFormatError, SqueezyServiceFileInUseError, SqueezySquidReconfigureError
 from squeezy.models.file import File
 from squeezy.helpers.acl_types import ACL_TYPES
 from squeezy.helpers.directive_types import DIRECTIVE_TYPES
@@ -113,3 +113,14 @@ def get_config():
         flash(e.args[0])
         return redirect(url_for("main.root"))
     return render_template("config.html.j2", user=current_user, content=content)
+
+@main_module.route("/reconfigure", methods=["POST"])
+@login_required
+def reconfigure_squid():
+    try:
+        SqueezyService().reload_service()
+    except SqueezySquidReconfigureError as e:
+        flash(e.args[0])
+        return redirect(url_for("main.get_config"))
+    flash("Reload successeful!")
+    return redirect(url_for("main.get_config"))
