@@ -6,7 +6,7 @@ from squeezy.forms.file import FileForm
 from squeezy.models.settings import Settings
 from squeezy.models.acl import AccessControlList
 from squeezy.service.basic_settings import BasicSettingsService
-from squeezy.service.squeezy import SqueezyService, SqueezyServiceFileFormatError
+from squeezy.service.squeezy import SqueezyService, SqueezyServiceFileFormatError, SqueezyServiceFileInUseError
 from squeezy.models.file import File
 from squeezy.helpers.acl_types import ACL_TYPES
 from squeezy.helpers.directive_types import DIRECTIVE_TYPES
@@ -74,6 +74,9 @@ def file_delete():
         id = request.args.get("id")
         file = File.query.filter_by(id=id).first()
         SqueezyService().handle_file_delete(file)
+    except SqueezyServiceFileInUseError as e:
+        flash(e.args[0])
+        return redirect(url_for("main.files"))
     except Exception as e:
         flash(e.args[0])
         return redirect(url_for("main.root"))

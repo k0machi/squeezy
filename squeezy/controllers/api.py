@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, jsonify
 from flask_security import login_required, logout_user, current_user
 from squeezy.models.acl import AccessControlList, AccessDirective, ACLDirective
-from squeezy.service.squeezy import SqueezyService
+from squeezy.service.squeezy import SqueezyService, SqueezyServiceACLInUseError
 from squeezy.models.file import File
 from json import loads
 api_module = Blueprint('api', __name__)
@@ -114,6 +114,10 @@ def acl_delete():
     except Exception as e:
         response["status"] = "error"
         response["message"] = e.args[0]
+    except SqueezyServiceACLInUseError as e:
+        response["status"] = "error"
+        response["message"] = e.args[0]
+
     return jsonify(response)
 
 

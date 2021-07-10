@@ -58,6 +58,12 @@
                     "Content-Type": "application/json",
                 }
             }).then((res) => res.json());
+
+            if (result.status === "error") {
+                console.log(result.message)
+                busy = false;
+                return;
+            }
         }
         dispatch("deleted", { list_id: acl.list_id });
         busy = false;

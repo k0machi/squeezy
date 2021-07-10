@@ -15,6 +15,12 @@ import os
 class SqueezyServiceFileFormatError(Exception):
     pass
 
+class SqueezyServiceFileInUseError(Exception):
+    pass
+
+
+class SqueezyServiceACLInUseError(Exception):
+    pass
 
 class SqueezyService:
     def handle_file_upload(self, form: FileForm):
@@ -51,7 +57,12 @@ class SqueezyService:
             return f.read()
 
     def handle_file_delete(self, file: File):
-        os.unlink(file.filepath)
+        if AccessControlList.query.filter_by(file_id=file.id).first():
+            raise SqueezyServiceFileInUseError(f"{file.original_filename} is in use by an ACL. Remove all references to this file before before proceeding")
+        storage_path = ENVIRONMENT.get("SQUEEZY_FILE_STORAGE_PATH")
+        path = os.path.join(ENVIRONMENT.get(
+            "INSTANCE_PATH"), storage_path, file.filepath)
+        os.unlink(path)
         db.session.delete(file)
         db.session.commit()
 
@@ -92,6 +103,9 @@ class SqueezyService:
 
         if not acl:
             raise Exception("ACL does not exist")
+
+        if ACLDirective.query.filter_by(acl=acl).first():
+            raise SqueezyServiceACLInUseError("ACL is in use by a Directive. Please remove all references to this ACL before deleting")
 
         db.session.delete(acl)
         db.session.commit()
