@@ -2,16 +2,14 @@
 
 {% block app %}
 <div class="container border rounded mt-2">
-    <div class="row p-2 text-center">
-        <h1>Files</h1>
-    </div>
     <div class="row m-4">
         <form class="container-fluid p-2" action="{{url_for('main.files')}}" method="post" enctype="multipart/form-data">
                 {{ form.csrf_token }}
-                    <div class="row mb-3 text-center">
-                        <div class="">
+                    <div class="row p-2 text-center">
+                        <h1>Files</h1>
+                    </div>
+                    <div class="row text-center mb-1">
                             <input class="btn btn-sm btn-secondary" type="button" value="New File" data-bs-toggle="collapse" data-bs-target="#collapseNewFile">
-                        </div>
                     </div>
                     <div class="row align-items-end p-2 collapse  border rounded" id="collapseNewFile">
                         <div class="col">
