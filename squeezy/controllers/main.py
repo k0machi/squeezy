@@ -18,6 +18,16 @@ main_module = Blueprint('main', __name__)
 def root():
     return render_template("index.html.j2", user=current_user)
 
+@main_module.route("/logs")
+@login_required
+def logs():
+    return render_template("logs.html.j2", user=current_user)
+
+@main_module.route("/users")
+@login_required
+def users():
+    return render_template("users.html.j2", user=current_user)
+
 
 @main_module.route("/logout", methods=["POST"])
 @login_required

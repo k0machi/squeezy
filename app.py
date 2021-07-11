@@ -58,4 +58,4 @@ app.before_first_request(create_default_user)
 app.before_first_request(init_proxy_settings)
 
 if __name__ == "__main__":
-   app.run()
+   app.run(host="0.0.0.0")
