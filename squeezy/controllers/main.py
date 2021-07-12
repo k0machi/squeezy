@@ -1,5 +1,5 @@
 import logging
-from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, jsonify
+from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, jsonify, make_response
 from json import dumps
 from flask_security import login_required, logout_user, current_user
 from squeezy.forms.settings import SettingsForm
@@ -22,7 +22,22 @@ def root():
 @main_module.route("/logs")
 @login_required
 def logs():
-    return render_template("logs.html.j2", user=current_user)
+    logs = SqueezyService().get_logs()
+    return render_template("logs.html.j2", user=current_user, logs=logs)
+
+@main_module.route("/logs/download/<name>")
+@login_required
+def download_log(name: str):
+    logs = SqueezyService().get_logs()
+    try:
+        log = logs[name]
+    except KeyError as e:
+        flash("Unknown log requested")
+        return redirect(url_for("main.logs"))
+    response = make_response(log)
+    response.content_type = "text/plain"
+    return response
+
 
 @main_module.route("/users")
 @login_required

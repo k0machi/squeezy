@@ -6,7 +6,26 @@
         <h1>Logs</h1>
     </div>
     <div class="row" id="status-widget-block">
-        Work in progress
+        <div class="accordion" id="logAccordion">
+            {% for key, value in logs.items() %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="log_{{key}}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#logCollapse_{{key}}" aria-expanded="true" aria-controls="logCollapse_{{key}}">
+                        {{ key.capitalize() }} Log
+                    </button>
+                </h2>
+                <div class="accordion-collapse collapse" id="logCollapse_{{key}}">
+                    <div class="p-2">
+                        <a class="btn btn-secondary" href="{{url_for('main.download_log', name=key)}}">Download</a>
+                    </div>
+                    <hr>
+                    <div class="accordion-body">
+                        <pre class="file-view">{{ value if value | length > 0 else "Empty" }}</pre>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock app %}

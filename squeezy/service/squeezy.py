@@ -307,10 +307,12 @@ class SqueezyService:
         return self.get_file_content("/var/log/squid/access.log")
 
     def get_supervisord_log(self):
-        return self.get_file_content("/app/logs/supervisord.log")
+        path = Path(ENVIRONMENT.get("INSTANCE_PATH") + "/logs/supervisord.log")
+        return self.get_file_content(path)
 
     def get_operational_log(self):
         return self.get_file_content("/tmp/wsgi.log")
 
     def get_application_log(self):
-        return self.get_file_content("/app/logs/application.log")
+        path = Path(ENVIRONMENT.get("INSTANCE_PATH") + "/logs/application.log")
+        return self.get_file_content(path.absolute())
