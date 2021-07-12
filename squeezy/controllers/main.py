@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for, jsonify
 from json import dumps
 from flask_security import login_required, logout_user, current_user
@@ -28,10 +29,10 @@ def logs():
 def users():
     return render_template("users.html.j2", user=current_user)
 
-
 @main_module.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    logging.info(f"About to log out user {current_user.email}")
     logout_user()
     return redirect(url_for('main.root'))
 
@@ -56,9 +57,11 @@ def files():
     files = File.query.all()
     if form.validate_on_submit():
         try:
+            logging.info(f"handle_file_upload: {form.label.data} / {form.file.data.filename} / {form.file.data.content_length} / {form.file.data.content_type} ")
             SqueezyService().handle_file_upload(form)
         except SqueezyServiceFileFormatError as e:
             flash(f"Text file expected, got: {form.file.data.content_type}")
+            logging.error(f"FileFormatError for handle_file_upload: {form.label.data} / {form.file.data.filename} / {form.file.data.content_length} / {form.file.data.content_type}")
         except Exception as e:
             flash(f"Unknown Error: {e.args[0]}")
         return redirect(url_for('main.files'))
@@ -72,7 +75,8 @@ def file(id: int):
         file = File.query.filter_by(id=id).first()
         content = SqueezyService().handle_file_read(file)
     except Exception as e:
-        flash(e.args[0])
+        flash(f"Unhandled exception: {e.args}")
+        logging.error(f"Error reading file: {e.args}")
         return redirect(url_for("main.root"))
     return render_template("file.html.j2", user=current_user, file=file, content=content)
 
@@ -85,10 +89,10 @@ def file_delete():
         file = File.query.filter_by(id=id).first()
         SqueezyService().handle_file_delete(file)
     except SqueezyServiceFileInUseError as e:
-        flash(e.args[0])
+        flash(f"Unhandled exception: {e.args}")
         return redirect(url_for("main.files"))
     except Exception as e:
-        flash(e.args[0])
+        flash(f"Unhandled exception: {e.args}")
         return redirect(url_for("main.root"))
     return redirect(url_for('main.files'))
 
@@ -110,7 +114,7 @@ def apply_config():
     try:
         SqueezyService().apply_config()
     except Exception as e:
-        flash(e.args[0])
+        flash(f"Unhandled exception: {e.args}")
         return redirect(url_for("main.root"))
     return redirect(url_for("main.get_config"))
 
@@ -120,7 +124,7 @@ def get_config():
     try:
         content = SqueezyService().get_config()
     except Exception as e:
-        flash(e.args[0])
+        flash(f"Unhandled exception: {e.args}")
         return redirect(url_for("main.root"))
     return render_template("config.html.j2", user=current_user, content=content)
 

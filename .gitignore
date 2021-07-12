@@ -6,3 +6,4 @@ static/dist
 .env.local
 storage/files/file*
 storage/squid/squid.conf
+logs/*.log
