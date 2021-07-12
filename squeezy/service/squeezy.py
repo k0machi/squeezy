@@ -18,14 +18,18 @@ import os
 class SqueezyServiceFileFormatError(Exception):
     pass
 
+
 class SqueezyServiceFileInUseError(Exception):
     pass
+
 
 class SqueezyServiceACLInUseError(Exception):
     pass
 
+
 class SqueezySquidReconfigureError(Exception):
     pass
+
 
 class SqueezyService:
     def handle_file_upload(self, form: FileForm):
@@ -64,8 +68,10 @@ class SqueezyService:
     def handle_file_delete(self, file: File):
         logging.debug(f"handle_file_delete called for {file.label}")
         if AccessControlList.query.filter_by(file_id=file.id).first():
-            logging.warning(f"File is currently in use, unable to remove {file.original_filename} / {file.label}")
-            raise SqueezyServiceFileInUseError(f"{file.original_filename} is in use by an ACL. Remove all references to this file before before proceeding")
+            logging.warning(
+                f"File is currently in use, unable to remove {file.original_filename} / {file.label}")
+            raise SqueezyServiceFileInUseError(
+                f"{file.original_filename} is in use by an ACL. Remove all references to this file before before proceeding")
 
         storage_path = ENVIRONMENT.get("SQUEEZY_FILE_STORAGE_PATH")
         path = os.path.join(ENVIRONMENT.get(
@@ -115,8 +121,10 @@ class SqueezyService:
             raise Exception("ACL does not exist")
 
         if ACLDirective.query.filter_by(acl=acl).first():
-            logging.error(f"Attempt to remove an in-use ACL from database: {acl.id}")
-            raise SqueezyServiceACLInUseError("ACL is in use by a Directive. Please remove all references to this ACL before deleting")
+            logging.error(
+                f"Attempt to remove an in-use ACL from database: {acl.id}")
+            raise SqueezyServiceACLInUseError(
+                "ACL is in use by a Directive. Please remove all references to this ACL before deleting")
 
         db.session.delete(acl)
         db.session.commit()
@@ -130,7 +138,8 @@ class SqueezyService:
             id=id).first()
 
         if not directive:
-            logging.error(f"delete_directive: Non existing directive was requested: {directive_data}")
+            logging.error(
+                f"delete_directive: Non existing directive was requested: {directive_data}")
             raise Exception("Directive does not exist")
 
         for acldir in directive.acls:
@@ -138,7 +147,8 @@ class SqueezyService:
 
         db.session.delete(directive)
         db.session.commit()
-        logging.info(f"delete_directive: Directive delete finished for directive id {id}")
+        logging.info(
+            f"delete_directive: Directive delete finished for directive id {id}")
         return id
 
     def update_directive(self, directive_data: dict):
@@ -170,7 +180,8 @@ class SqueezyService:
             aclDirective = ACLDirective()
             acl = AccessControlList.query.filter_by(id=newAcl["id"]).first()
             if not acl:
-                logging.error(f"update_directive: Directive Update data contains a non-existent acl: {newAcl}")
+                logging.error(
+                    f"update_directive: Directive Update data contains a non-existent acl: {newAcl}")
                 raise Exception("Non-existing ACL provided", newAcl)
 
             aclDirective.acl = acl
@@ -183,10 +194,10 @@ class SqueezyService:
         for removedAcl in removedAcls:
             db.session.delete(removedAcl)
 
-
         db.session.add(directive)
         db.session.commit()
-        logging.info(f"update_directive: Directive create / update finished for directive id {directive.id}")
+        logging.info(
+            f"update_directive: Directive create / update finished for directive id {directive.id}")
         return directive
 
     def safe_acl_name(self, acl: AccessControlList):
@@ -206,7 +217,7 @@ class SqueezyService:
             line = f"# {file.label} ({file.original_filename})\nacl {label} {acl_type} -i \"{filepath}\"\n"
         else:
             line = f"acl {label} {acl_type} {acl.parameters}\n"
-        
+
         logging.debug(f"parse_acl: got {line}")
         return line
 
@@ -231,12 +242,14 @@ class SqueezyService:
         with open(template_path, "rt") as f:
             template = f.read()
 
-        squid_config_keys = [(key, value) for key, value in ENVIRONMENT.items() if key.startswith("SQUEEZY_SQUID_CONFIG")]
-        logging.debug(f"apply_config: Found {len(squid_config_keys)} configuration keys for the config file")
+        squid_config_keys = [(key, value) for key, value in ENVIRONMENT.items(
+        ) if key.startswith("SQUEEZY_SQUID_CONFIG")]
+        logging.debug(
+            f"apply_config: Found {len(squid_config_keys)} configuration keys for the config file")
         for key, value in squid_config_keys:
-            logging.debug(f"apply_config: Applying {key}: {value} to the config file")
+            logging.debug(
+                f"apply_config: Applying {key}: {value} to the config file")
             template = template.replace(f"${key}", value, 1)
-
 
         acls: list[AccessControlList] = AccessControlList.query.order_by(
             AccessControlList.priority).all()
@@ -259,27 +272,30 @@ class SqueezyService:
             content = f.read()
         return content
 
-
     def reload_service(self):
         config_path = Path(ENVIRONMENT.get("INSTANCE_PATH") +
                            ENVIRONMENT.get("SQUID_CONFIG_DIR") + "/squid.conf")
         executable_path = ENVIRONMENT.get("SQUEEZY_SQUID_BINARY")
-        proc: CompletedProcess = run(args=[executable_path, "-f", config_path.absolute(), "-k", "reconfigure"], capture_output=True)
+        proc: CompletedProcess = run(
+            args=[executable_path, "-f", config_path.absolute(), "-k", "reconfigure"], capture_output=True)
         if proc.returncode == 0:
             return True
         else:
             utf8_stdout = str(proc.stdout, encoding="utf-8")
             utf8_stderr = str(proc.stderr, encoding="utf-8")
-            logging.critical(f"reload_service: Squid failed to restart! Code: {proc.returncode}\nSTDOUT:\n{utf8_stdout}\nSTDERR:{utf8_stderr}")
-            raise SqueezySquidReconfigureError(f"Squid failed to restart! Code: {proc.returncode}\nSTDOUT:\n{utf8_stdout}\nSTDERR:{utf8_stderr}")
+            logging.critical(
+                f"reload_service: Squid failed to restart! Code: {proc.returncode}\nSTDOUT:\n{utf8_stdout}\nSTDERR:{utf8_stderr}")
+            raise SqueezySquidReconfigureError(
+                f"Squid failed to restart! Code: {proc.returncode}\nSTDOUT:\n{utf8_stdout}\nSTDERR:{utf8_stderr}")
 
     def get_file_content(self, path):
         p = Path(path)
         logging.debug(f"get_file_content: Trying to read {p.absolute()}")
         if not p.exists():
-            logging.warning(f"get_file_content: Unable to open {p.absolute()}, returning empty content")
+            logging.warning(
+                f"get_file_content: Unable to open {p.absolute()}, returning empty content")
             return ""
-        
+
         with open(p.absolute(), "rt") as f:
             file_content = f.read()
 
@@ -295,7 +311,6 @@ class SqueezyService:
             "supervisor": self.get_supervisord_log(),
         }
         return logs
-
 
     def get_nginx_log(self):
         return self.get_file_content("/var/log/nginx/access.squeezy.log")

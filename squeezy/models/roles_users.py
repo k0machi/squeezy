@@ -1,5 +1,6 @@
 from database import db
 
+
 class RolesUsers(db.Model):
     __tablename__ = 'roles_users'
     id = db.Column(db.Integer(), primary_key=True)

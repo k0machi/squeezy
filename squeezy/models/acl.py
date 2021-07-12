@@ -2,6 +2,7 @@ from sqlalchemy.sql.schema import ForeignKey
 from database import db
 from sqlalchemy import Column, String, Integer, VARCHAR, Text, Boolean
 
+
 class AccessControlList(db.Model):
     id = Column(Integer, primary_key=True)
     label = Column(String(128), nullable=False)
@@ -24,8 +25,10 @@ class AccessDirective(db.Model):
 class ACLDirective(db.Model):
     __tablename__ = 'acl_directives'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    acl_id = Column(Integer, ForeignKey('access_control_list.id'), primary_key=True)
-    directive_id = Column(Integer, ForeignKey('access_directive.id'), primary_key=True)
+    acl_id = Column(Integer, ForeignKey(
+        'access_control_list.id'), primary_key=True)
+    directive_id = Column(Integer, ForeignKey(
+        'access_directive.id'), primary_key=True)
     negated = Column(Boolean, nullable=False)
     directive = db.relationship("AccessDirective", back_populates="acls")
     acl = db.relationship("AccessControlList", back_populates="directives")

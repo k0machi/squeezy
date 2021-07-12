@@ -2,6 +2,7 @@ from sqlalchemy.sql.expression import null
 from database import db
 from sqlalchemy import Column, String, Integer, VARCHAR, Text
 
+
 class File(db.Model):
     id = Column(Integer, primary_key=True)
     label = Column(String(128), nullable=False)

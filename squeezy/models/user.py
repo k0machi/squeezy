@@ -2,6 +2,7 @@ from database import db
 from flask_security import UserMixin
 from squeezy.models.roles_users import RolesUsers
 
+
 class User(db.Model, UserMixin):
 
     id = db.Column(db.Integer, primary_key=True)
