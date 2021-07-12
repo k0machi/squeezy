@@ -9,7 +9,7 @@ import codecs
 import logging
 import tempfile
 
-REPO_LINK="https://git.komachi.sh/komachi/squidproxy-ez-gui"
+REPO_LINK="https://github.com/k0machi/squeezy"
 BUILD_DIR=pathlib.Path(
         tempfile.gettempdir(),
         "squeezy_" 
