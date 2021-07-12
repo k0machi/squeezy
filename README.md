@@ -10,6 +10,7 @@ Squeezy requires following conditions to be met:
 
 * `git` must be present on the system
 * `docker` must be present and available to current user
+* `python3` version must be `>=3.9`
 
 To install squeezy, simply download the bootstrap.py script, make it executable and run it:
 
@@ -30,4 +31,4 @@ To define squid directives, head into `DIRECTIVES` section of the web interface,
 
 ## License
 
-BSD-3-Clause, see [LICENSE](LICENSE)
+BSD-3-Clause, see [LICENSE](LICENSE
