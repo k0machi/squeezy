@@ -311,7 +311,7 @@ class SqueezyService:
         return self.get_file_content(path)
 
     def get_operational_log(self):
-        return self.get_file_content("/tmp/wsgi.log")
+        return self.get_file_content("/tmp/uwsgi.log")
 
     def get_application_log(self):
         path = Path(ENVIRONMENT.get("INSTANCE_PATH") + "/logs/application.log")
