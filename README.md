@@ -31,4 +31,4 @@ To define squid directives, head into `DIRECTIVES` section of the web interface,
 
 ## License
 
-BSD-3-Clause, see [LICENSE](LICENSE
+BSD-3-Clause, see [LICENSE](LICENSE)
