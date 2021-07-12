@@ -7,11 +7,12 @@ import datetime
 import hashlib
 import codecs
 import logging
-import sys
+import tempfile
 
 REPO_LINK="https://git.komachi.sh/komachi/squidproxy-ez-gui"
 BUILD_DIR=pathlib.Path(
-        "/tmp/squeezy_" 
+        tempfile.gettempdir(),
+        "squeezy_" 
         + datetime.datetime.now().strftime("%Y-%m-%d") 
         +  "_" 
         + str(codecs.encode(os.urandom(10), "hex"), encoding="utf-8")
